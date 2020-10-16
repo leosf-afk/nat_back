@@ -5,7 +5,6 @@ const {
     DetallePedido,
     PedidoCliente,
     Producto,
-    PedidoProveedor,
     sequelize
 } = require('../sequelize')
 
@@ -16,9 +15,9 @@ exports.agregarPedidoCliente = asyncHandler(async (req, res, next) => {
 
     const pedido = await PedidoCliente.create(req.body, {include: [
         {association: PedidoCliente.Cliente},
-        {association: PedidoCliente.Pedido, include: [ 
-            {association: Pedido.DetallePedido, 
-                include: [{association: DetallePedido.Producto}]} 
+        {association: PedidoCliente.Pedido, include: [
+            {association: Pedido.DetallePedido,
+                include: [{association: DetallePedido.Producto}]}
         ]}
     ]});
 
@@ -27,12 +26,6 @@ exports.agregarPedidoCliente = asyncHandler(async (req, res, next) => {
     await pedido.save();
 
     res.status(200).json({ success: true, data:pedido });
-})
-
-exports.agregarPedidoProveedor = asyncHandler(async (req, res, next) => {
-    console.log(req.body)
-
-    res.status(200).json({ success: true, data:{} });
 })
 
 //cancelar?
@@ -55,11 +48,11 @@ exports.getAllPedidoCliente = asyncHandler(async (req, res, next) => {
         ],
         include: [
             { model: Cliente, attributes: ["nombre"] },
-            { model: Pedido, attributes: ["total"], 
-                include: [{ 
+            { model: Pedido, attributes: ["total"],
+                include: [{
                     model: DetallePedido, attributes: ["cantidad", "subtotal"],
-                    include: [{model: Producto, attributes: ["descripcion", "precio"]}] 
-                }] 
+                    include: [{model: Producto, attributes: ["descripcion", "precio"]}]
+                }]
             }
         ],
     });
@@ -71,17 +64,11 @@ exports.getAllPedidoCliente = asyncHandler(async (req, res, next) => {
                 total_pedido += dp.subtotal
             })
 
-            p.Pedido.total = total_pedido 
+            p.Pedido.total = total_pedido
         }
     )
 
-     
+
     return res.status(200).json({ success: true, data: pedidos });
 
-})
-
-exports.getPedidoProveedor = asyncHandler(async (req, res, next) => {
-    console.log(req.body)
-
-    res.status(200).json({ success: true, data:{} });
 })
